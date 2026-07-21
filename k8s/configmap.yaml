@@ -1,0 +1,21 @@
+# Non-secret configuration. Secrets (tokens, passwords) live in secret.yaml.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: central-devtron-config
+  labels:
+    app: central-devtron
+data:
+  PORT: "8080"
+  DB_PATH: "/data/central.db"          # points at the mounted PVC
+  # External URL the dashboard is served on (used for CORS). Since the frontend
+  # is served same-origin by the backend, this only matters for cross-origin calls.
+  ALLOW_ORIGIN: "https://central-devtron.example.com"
+  COOKIE_SECURE: "true"                # you are serving over HTTPS in prod
+  AUTH_TOKEN_TTL_SECONDS: "43200"      # 12h sessions
+  # Zoho Desk (India DC) — non-secret bits
+  ZOHO_ACCOUNTS_BASE: "https://accounts.zoho.in"
+  ZOHO_API_BASE: "https://desk.zoho.in"
+  ZOHO_ORG_ID: "REPLACE_WITH_ORG_ID"
+  # Devtron
+  DEVTRON_BASE_URL: "https://devtron.example.com"

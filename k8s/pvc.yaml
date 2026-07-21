@@ -1,0 +1,15 @@
+# Persistent storage for the SQLite database. This is what makes data survive
+# pod rotation — the volume outlives the pod.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: central-devtron-data
+  labels:
+    app: central-devtron
+spec:
+  accessModes:
+    - ReadWriteOnce            # SQLite has a single writer → single replica
+  resources:
+    requests:
+      storage: 1Gi             # small; the DB is tiny. Grow later if needed.
+  # storageClassName: standard # uncomment/set to your cluster's storage class

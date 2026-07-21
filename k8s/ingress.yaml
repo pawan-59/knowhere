@@ -1,0 +1,28 @@
+# Optional: expose the dashboard over HTTPS. Requires an ingress controller and
+# (for TLS) cert-manager or a pre-provisioned certificate. Adjust host/class.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: central-devtron
+  labels:
+    app: central-devtron
+  annotations:
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - central-devtron.example.com
+      secretName: central-devtron-tls
+  rules:
+    - host: central-devtron.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: central-devtron
+                port:
+                  number: 80

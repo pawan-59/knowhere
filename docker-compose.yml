@@ -1,0 +1,26 @@
+# Run the full app as a single container locally (mirrors the K8s pod).
+# Data persists in the named volume `central_devtron_data`, just like the PVC.
+#
+#   docker compose up --build
+#   open http://localhost:8080
+services:
+  app:
+    build: .
+    image: central-devtron:latest
+    container_name: central-devtron
+    ports:
+      - "8080:8080"
+    environment:
+      DB_PATH: /data/central.db
+      ALLOW_ORIGIN: http://localhost:8080
+      COOKIE_SECURE: "false"          # local http
+      AUTH_SECRET: change-me-locally-0123456789
+      ADMIN_EMAIL: admin@devtron.ai
+      ADMIN_PASSWORD: change-me-now-8+chars
+      # Zoho / Devtron creds optional — omit to leave those modules at 503.
+    volumes:
+      - central_devtron_data:/data
+    restart: unless-stopped
+
+volumes:
+  central_devtron_data:

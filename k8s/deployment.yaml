@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: central-devtron
+  labels:
+    app: central-devtron
+spec:
+  replicas: 1                    # SQLite is single-writer → keep at 1
+  strategy:
+    type: Recreate               # never run two pods on the RWO volume at once
+  selector:
+    matchLabels:
+      app: central-devtron
+  template:
+    metadata:
+      labels:
+        app: central-devtron
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        fsGroup: 65532            # makes the mounted PVC writable by the app user
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: central-devtron
+          image: central-devtron:latest   # replace with your registry/tag
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: central-devtron-config
+            - secretRef:
+                name: central-devtron-secrets
+          volumeMounts:
+            - name: data
+              mountPath: /data     # SQLite database lives here
+            - name: tmp
+              mountPath: /tmp
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true   # only /data and /tmp are writable
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: central-devtron-data
+        - name: tmp
+          emptyDir: {}

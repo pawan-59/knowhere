@@ -1,0 +1,28 @@
+# Env / secrets
+.env
+*.env
+!*.env.example
+
+# Go
+/backend/server
+/backend/bin/
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+/data/
+
+# Embedded frontend build (real build is produced in the Docker image;
+# only the placeholder index.html is tracked)
+/backend/internal/web/dist/assets/
+
+# Node
+node_modules/
+frontend/dist/
+*.log
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

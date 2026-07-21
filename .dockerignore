@@ -1,0 +1,15 @@
+# Keep the build context small and reproducible.
+**/node_modules
+frontend/dist
+backend/internal/web/dist/assets
+*.db
+*.db-shm
+*.db-wal
+/data
+.git
+.env
+**/.env
+.claude
+*.md
+k8s
+docker-compose.yml

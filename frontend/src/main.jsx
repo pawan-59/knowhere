@@ -8,6 +8,8 @@ import Overview from './pages/Overview.jsx'
 import Zoho from './pages/Zoho.jsx'
 import Devtron from './pages/Devtron.jsx'
 import Onboarding from './pages/Onboarding.jsx'
+import OnboardingList from './pages/OnboardingList.jsx'
+import OnboardingReport from './pages/OnboardingReport.jsx'
 import License from './pages/License.jsx'
 import { AuthProvider, useAuth } from './lib/auth'
 
@@ -32,6 +34,8 @@ function Gate() {
           <Route path="zoho" element={<Zoho />} />
           <Route path="devtron" element={<Devtron />} />
           <Route path="onboarding" element={<Onboarding />} />
+          <Route path="onboarding/list" element={<OnboardingList />} />
+          <Route path="onboarding/:code" element={<OnboardingReport />} />
           <Route path="licenses" element={<License />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

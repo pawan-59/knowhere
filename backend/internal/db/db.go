@@ -55,9 +55,13 @@ func Connect(ctx context.Context, path string) (*sql.DB, error) {
 
 	// Additive migrations for databases created before a column existed.
 	// CREATE TABLE IF NOT EXISTS won't alter an existing table, so backfill here.
-	if err := ensureColumn(ctx, sqlDB, "onboardings", "blocked_reason", "TEXT"); err != nil {
+	if err := ensureColumn(ctx, sqlDB, "onboardings", "owner", "TEXT"); err != nil {
 		sqlDB.Close()
-		return nil, fmt.Errorf("migrate onboardings.blocked_reason: %w", err)
+		return nil, fmt.Errorf("migrate onboardings.owner: %w", err)
+	}
+	if err := ensureColumn(ctx, sqlDB, "onboardings", "target_date", "TEXT"); err != nil {
+		sqlDB.Close()
+		return nil, fmt.Errorf("migrate onboardings.target_date: %w", err)
 	}
 
 	return sqlDB, nil

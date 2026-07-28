@@ -5,8 +5,10 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 type Handler struct{ store *Store }
@@ -17,8 +19,10 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/onboarding/summary", h.summary)
 	mux.HandleFunc("GET /api/onboarding", h.list)
 	mux.HandleFunc("POST /api/onboarding", h.upsert)
-	mux.HandleFunc("GET /api/onboarding/{id}", h.get)
-	mux.HandleFunc("DELETE /api/onboarding/{id}", h.delete)
+	mux.HandleFunc("GET /api/onboarding/{code}", h.get)
+	mux.HandleFunc("DELETE /api/onboarding/{code}", h.delete)
+	mux.HandleFunc("GET /api/onboarding/{code}/logs", h.listLogs)
+	mux.HandleFunc("POST /api/onboarding/{code}/logs", h.addLog)
 }
 
 func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +36,21 @@ func (h *Handler) summary(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-	items, err := h.store.List(r.Context(), q.Get("stage"), q.Get("status"))
+	status := q.Get("status")
+	if status != "" && !ValidStatus(status) {
+		httpx.Error(w, http.StatusBadRequest, "invalid status")
+		return
+	}
+	limit := 0
+	if v := q.Get("limit"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 0 {
+			httpx.Error(w, http.StatusBadRequest, "invalid limit")
+			return
+		}
+		limit = n
+	}
+	items, err := h.store.List(r.Context(), status, limit)
 	if err != nil {
 		httpx.Error(w, http.StatusInternalServerError, "failed to list onboardings", err.Error())
 		return
@@ -41,12 +59,8 @@ func (h *Handler) list(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, "invalid id")
-		return
-	}
-	o, err := h.store.Get(r.Context(), id)
+	code := r.PathValue("code")
+	o, err := h.store.GetByShortCode(r.Context(), code)
 	if errors.Is(err, ErrNotFound) {
 		httpx.Error(w, http.StatusNotFound, "onboarding not found")
 		return
@@ -64,15 +78,23 @@ func (h *Handler) upsert(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, http.StatusBadRequest, "invalid body", err.Error())
 		return
 	}
-	if o.Customer == "" {
-		httpx.Error(w, http.StatusBadRequest, "customer is required")
+	if o.Company == "" {
+		httpx.Error(w, http.StatusBadRequest, "company is required")
 		return
 	}
-	if o.Stage == "" {
-		o.Stage = "Discovery Call"
-	}
 	if o.Status == "" {
-		o.Status = "on_track"
+		o.Status = "in_progress"
+	}
+	if !ValidStatus(o.Status) {
+		httpx.Error(w, http.StatusBadRequest, "invalid status")
+		return
+	}
+	if o.Phase == "" {
+		o.Phase = "Discovery Call"
+	}
+	if !ValidPhase(o.Phase) {
+		httpx.Error(w, http.StatusBadRequest, "invalid phase")
+		return
 	}
 	if o.Progress < 0 {
 		o.Progress = 0
@@ -87,13 +109,75 @@ func (h *Handler) upsert(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, saved)
 }
 
-func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
-	if err != nil {
-		httpx.Error(w, http.StatusBadRequest, "invalid id")
+func (h *Handler) listLogs(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	logs, err := h.store.ListLogs(r.Context(), code)
+	if errors.Is(err, ErrNotFound) {
+		httpx.Error(w, http.StatusNotFound, "onboarding not found")
 		return
 	}
-	if err := h.store.Delete(r.Context(), id); errors.Is(err, ErrNotFound) {
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "failed to list logs", err.Error())
+		return
+	}
+	httpx.JSON(w, http.StatusOK, map[string]any{"logs": logs})
+}
+
+func (h *Handler) addLog(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	var body struct {
+		ContactDate   string `json:"contactDate"`
+		ContactType   string `json:"contactType"`
+		ReachedBy     string `json:"reachedBy"`
+		ContactPerson string `json:"contactPerson"`
+		Description   string `json:"description"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		httpx.Error(w, http.StatusBadRequest, "invalid body", err.Error())
+		return
+	}
+	if strings.TrimSpace(body.Description) == "" {
+		httpx.Error(w, http.StatusBadRequest, "description is required")
+		return
+	}
+	if body.ContactType == "" {
+		body.ContactType = "call"
+	}
+	if !ValidContactType(body.ContactType) {
+		httpx.Error(w, http.StatusBadRequest, "invalid contact type")
+		return
+	}
+	contactDate := time.Now().UTC()
+	if body.ContactDate != "" {
+		t, err := time.Parse(time.RFC3339, body.ContactDate)
+		if err != nil {
+			httpx.Error(w, http.StatusBadRequest, "invalid contactDate")
+			return
+		}
+		contactDate = t
+	}
+	l := Log{ContactDate: contactDate, ContactType: body.ContactType, Description: strings.TrimSpace(body.Description)}
+	if body.ReachedBy != "" {
+		l.ReachedBy = &body.ReachedBy
+	}
+	if body.ContactPerson != "" {
+		l.ContactPerson = &body.ContactPerson
+	}
+	saved, err := h.store.AddLog(r.Context(), code, l)
+	if errors.Is(err, ErrNotFound) {
+		httpx.Error(w, http.StatusNotFound, "onboarding not found")
+		return
+	}
+	if err != nil {
+		httpx.Error(w, http.StatusInternalServerError, "failed to add log", err.Error())
+		return
+	}
+	httpx.JSON(w, http.StatusOK, saved)
+}
+
+func (h *Handler) delete(w http.ResponseWriter, r *http.Request) {
+	code := r.PathValue("code")
+	if err := h.store.DeleteByShortCode(r.Context(), code); errors.Is(err, ErrNotFound) {
 		httpx.Error(w, http.StatusNotFound, "onboarding not found")
 		return
 	} else if err != nil {

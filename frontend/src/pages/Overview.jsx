@@ -73,9 +73,9 @@ export default function Overview() {
           load={api.onboardingSummary}
           render={(d) => (
             <div className="grid grid-cols-3 gap-2">
-              <Stat label="Active" value={d.total} />
-              <Stat label="At risk" value={d.atRisk} tone="warn" />
-              <Stat label="Blocked" value={d.blocked} tone="bad" />
+              <Stat label="Total POCs" value={d.total} />
+              <Stat label="In progress" value={d.inProgress} tone="warn" />
+              <Stat label="Signed" value={d.signed} tone="good" />
             </div>
           )}
         />

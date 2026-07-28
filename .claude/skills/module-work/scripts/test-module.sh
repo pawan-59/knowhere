@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# test-module.sh — verification harness for a single Central-Devtron module.
+# test-module.sh — verification harness for a single Knowhere module.
 #
 # Brings up Postgres (a dedicated *test* database, never your real data),
 # builds + vets the backend, starts it on a test port with throwaway
@@ -43,7 +43,7 @@ trap 'finish 1' INT TERM
 case "$MODULE" in zoho|devtron|onboarding|license|auth|all) ;; *)
   echo "Unknown module '$MODULE'. Use: zoho | devtron | onboarding | license | auth | all"; exit 2;; esac
 
-echo "=== Central-Devtron module harness: $MODULE ==="
+echo "=== Knowhere module harness: $MODULE ==="
 
 # ── 1. Build + vet ──────────────────────────────────────────────────────────
 info "go build ./..."
@@ -115,21 +115,39 @@ check_devtron() {
 
 check_onboarding() {
   gate "/api/onboarding"
-  local body code id
-  # Use a blocked stage with a reason + an RFC3339 targetDate so the store's
-  # date bind/scan and the blocked_reason column round-trips are both exercised.
+  local body code
+  # POC record: exercise phase/primaryContact/owner/targetDate round-trip and
+  # the status enum (in_progress | signed | freezer). Phase must be one of the
+  # fixed pipeline steps (see Phases in onboarding.go). shortCode is also the
+  # API path key (not the numeric id) — see GetByShortCode in onboarding.go.
+  local code_key="HARNESS"
   body=$(curl -s -b "$COOKIES" -X POST "$BASE/api/onboarding" -H 'Content-Type: application/json' \
-    -d '{"customer":"__harness_onboarding__","stage":"Blocked On Devtron","status":"blocked","progress":10,"targetDate":"2026-01-15T00:00:00Z","blockedReason":"awaiting Devtron support ticket"}')
+    -d "{\"company\":\"__harness_onboarding__\",\"status\":\"in_progress\",\"phase\":\"Infra Provisioning\",\"progress\":40,\"owner\":\"Alex CSM\",\"primaryContact\":\"Jane Doe\",\"shortCode\":\"$code_key\",\"targetDate\":\"2026-01-15T00:00:00Z\"}")
   echo "$body" | grep -q '"id"' || fail "onboarding create did not return a record: $body"
+  echo "$body" | grep -q "\"shortCode\":\"$code_key\"" || fail "onboarding shortCode not round-tripped: $body"
+  echo "$body" | grep -q '"phase":"Infra Provisioning"' || fail "onboarding phase not round-tripped: $body"
+  echo "$body" | grep -q '"primaryContact":"Jane Doe"' || fail "onboarding primaryContact not round-tripped: $body"
+  echo "$body" | grep -q '"owner":"Alex CSM"' || fail "onboarding owner not round-tripped: $body"
   echo "$body" | grep -q '"targetDate":"2026-01-15T00:00:00Z"' || fail "onboarding targetDate not round-tripped: $body"
-  echo "$body" | grep -q '"blockedReason":"awaiting Devtron support ticket"' || fail "onboarding blockedReason not round-tripped: $body"
-  id=$(echo "$body" | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
-  pass "onboarding create → id=$id (targetDate + blockedReason round-trip)"
+  pass "onboarding create → shortCode=$code_key (phase + primaryContact + owner + targetDate round-trip)"
   [ "$(code_auth "/api/onboarding")" = "200" ]         || fail "onboarding list → not 200"
   [ "$(code_auth "/api/onboarding/summary")" = "200" ] || fail "onboarding summary → not 200"
-  code=$(curl -s -b "$COOKIES" -o /dev/null -w '%{http_code}' -X DELETE "$BASE/api/onboarding/$id")
+  [ "$(code_auth "/api/onboarding/$code_key")" = "200" ] || fail "onboarding get by shortCode → not 200"
+
+  gate "/api/onboarding/$code_key/logs"
+  local logbody
+  logbody=$(curl -s -b "$COOKIES" -X POST "$BASE/api/onboarding/$code_key/logs" -H 'Content-Type: application/json' \
+    -d '{"contactDate":"2026-01-10T00:00:00Z","contactType":"call","reachedBy":"Alex CSM","contactPerson":"Jane Doe","description":"Discussed rollout timeline"}')
+  echo "$logbody" | grep -q '"contactType":"call"' || fail "onboarding log contactType not round-tripped: $logbody"
+  echo "$logbody" | grep -q '"reachedBy":"Alex CSM"' || fail "onboarding log reachedBy not round-tripped: $logbody"
+  echo "$logbody" | grep -q '"description":"Discussed rollout timeline"' || fail "onboarding log description not round-tripped: $logbody"
+  [ "$(code_auth "/api/onboarding/$code_key/logs")" = "200" ] || fail "onboarding logs list → not 200"
+  curl -s -b "$COOKIES" "$BASE/api/onboarding/$code_key/logs" | grep -q '"logs"' || fail "onboarding logs list missing logs array"
+  pass "onboarding log create + list OK"
+
+  code=$(curl -s -b "$COOKIES" -o /dev/null -w '%{http_code}' -X DELETE "$BASE/api/onboarding/$code_key")
   [ "$code" = "204" ] || fail "onboarding delete → $code (expected 204)"
-  pass "onboarding CRUD round-trip OK (list, summary, delete)"
+  pass "onboarding CRUD round-trip OK (list, summary, get, delete)"
 }
 
 check_license() {

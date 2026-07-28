@@ -1,4 +1,4 @@
-// Thin fetch wrapper around the Central-Devtron backend API.
+// Thin fetch wrapper around the Knowhere backend API.
 const BASE = import.meta.env.VITE_API_BASE || ''
 
 // Subscribers notified when the server reports we are unauthenticated (401),
@@ -52,9 +52,12 @@ export const api = {
   saveLicense: (data) => request('/api/licenses', { method: 'POST', body: JSON.stringify(data) }),
   deleteLicense: (id) => request(`/api/licenses/${id}`, { method: 'DELETE' }),
 
-  // Onboarding
+  // Onboarding (POCs are addressed by short code in the API, not numeric id)
   onboardingSummary: () => request('/api/onboarding/summary'),
   onboardings: (params = '') => request(`/api/onboarding${params}`),
+  onboarding: (code) => request(`/api/onboarding/${code}`),
   saveOnboarding: (data) => request('/api/onboarding', { method: 'POST', body: JSON.stringify(data) }),
-  deleteOnboarding: (id) => request(`/api/onboarding/${id}`, { method: 'DELETE' }),
+  deleteOnboarding: (code) => request(`/api/onboarding/${code}`, { method: 'DELETE' }),
+  onboardingLogs: (code) => request(`/api/onboarding/${code}/logs`),
+  addOnboardingLog: (code, data) => request(`/api/onboarding/${code}/logs`, { method: 'POST', body: JSON.stringify(data) }),
 }

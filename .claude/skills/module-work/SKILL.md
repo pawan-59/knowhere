@@ -1,9 +1,9 @@
 ---
 name: module-work
 description: >-
-  Work on a single Central-Devtron module in isolation — Zoho Desk, Devtron
+  Work on a single Knowhere module in isolation — Zoho Desk, Devtron
   releases, Onboarding, Licenses, or Auth. Use this skill whenever the user asks
-  to add, change, fix, extend, or debug a specific Central-Devtron module (e.g.
+  to add, change, fix, extend, or debug a specific Knowhere module (e.g.
   "add a filter to the license module", "fix the zoho ticket handler", "work on
   onboarding", "the devtron page is broken", "add an endpoint to auth"). It maps
   the exact backend + frontend files for that module, enforces the project's
@@ -12,9 +12,9 @@ description: >-
   when the user names a module without saying "module".
 ---
 
-# Central-Devtron: Module Work
+# Knowhere: Module Work
 
-Central-Devtron is a Go backend (`backend/`) + React/Vite frontend (`frontend/`)
+Knowhere is a Go backend (`backend/`) + React/Vite frontend (`frontend/`)
 that aggregates four operational surfaces behind one authenticated API. This
 skill keeps changes **scoped to one module**, **secure by construction**, and
 **verified** before you call it done.
@@ -42,7 +42,7 @@ before editing so your changes match the established style.
 |--------|------|---------------|----------|--------|
 | **zoho** | Live API (Zoho Desk, India DC) | `backend/internal/zoho/client.go`, `handler.go` | `frontend/src/pages/Zoho.jsx` | `GET /api/zoho/summary`, `GET /api/zoho/tickets` |
 | **devtron** | Live API (orchestrator) | `backend/internal/devtron/client.go`, `handler.go` | `frontend/src/pages/Devtron.jsx` | `GET /api/devtron/summary`, `/deployments`, `/version` |
-| **onboarding** | SQLite CRUD | `backend/internal/onboarding/onboarding.go`, `handler.go` | `frontend/src/pages/Onboarding.jsx` | `GET/POST /api/onboarding`, `GET/DELETE /api/onboarding/{id}`, `GET /api/onboarding/summary` |
+| **onboarding** | SQLite CRUD (POC tracking + activity log) | `backend/internal/onboarding/onboarding.go`, `handler.go` | `frontend/src/pages/Onboarding.jsx` (dashboard), `OnboardingList.jsx` (full list/CRUD), `OnboardingReport.jsx` (details + activity log), `components/PocCard` (shared card), `components/PocFormModal` | `GET/POST /api/onboarding`, `GET/DELETE /api/onboarding/{code}`, `GET /api/onboarding/summary`, `GET/POST /api/onboarding/{code}/logs` — `{code}` is the POC's short code, not its numeric id |
 | **license** | SQLite CRUD | `backend/internal/license/license.go`, `handler.go` | `frontend/src/pages/License.jsx` | `GET/POST /api/licenses`, `GET/DELETE /api/licenses/{id}`, `GET /api/licenses/summary` |
 | **auth** | Security-critical | `backend/internal/auth/token.go`, `store.go`, `middleware.go`, `handler.go` | `frontend/src/pages/Login.jsx`, `frontend/src/lib/auth.jsx` | `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` |
 

@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: central-devtron-config
+  name: knowhere-config
   labels:
-    app: central-devtron
+    app: knowhere
 data:
   PORT: "8080"
   DB_PATH: "/data/central.db"          # points at the mounted PVC
   # External URL the dashboard is served on (used for CORS). Since the frontend
   # is served same-origin by the backend, this only matters for cross-origin calls.
-  ALLOW_ORIGIN: "https://central-devtron.example.com"
+  ALLOW_ORIGIN: "https://knowhere.example.com"
   COOKIE_SECURE: "true"                # you are serving over HTTPS in prod
   AUTH_TOKEN_TTL_SECONDS: "43200"      # 12h sessions
   # Zoho Desk (India DC) — non-secret bits

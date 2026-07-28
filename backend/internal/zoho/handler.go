@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 // Handler exposes Zoho Desk ticket data over HTTP.

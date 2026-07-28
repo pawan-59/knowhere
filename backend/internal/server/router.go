@@ -5,14 +5,14 @@ import (
 	"database/sql"
 	"net/http"
 
-	"central-devtron/internal/auth"
-	"central-devtron/internal/config"
-	"central-devtron/internal/devtron"
-	"central-devtron/internal/httpx"
-	"central-devtron/internal/license"
-	"central-devtron/internal/onboarding"
-	"central-devtron/internal/web"
-	"central-devtron/internal/zoho"
+	"knowhere/internal/auth"
+	"knowhere/internal/config"
+	"knowhere/internal/devtron"
+	"knowhere/internal/httpx"
+	"knowhere/internal/license"
+	"knowhere/internal/onboarding"
+	"knowhere/internal/web"
+	"knowhere/internal/zoho"
 )
 
 // New builds the top-level HTTP handler with all routes and middleware.

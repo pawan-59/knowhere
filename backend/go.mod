@@ -1,4 +1,4 @@
-module central-devtron
+module knowhere
 
 go 1.25.0
 

@@ -3,9 +3,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: central-devtron
+  name: knowhere
   labels:
-    app: central-devtron
+    app: knowhere
   annotations:
     # cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
@@ -13,16 +13,16 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - central-devtron.example.com
-      secretName: central-devtron-tls
+        - knowhere.example.com
+      secretName: knowhere-tls
   rules:
-    - host: central-devtron.example.com
+    - host: knowhere.example.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: central-devtron
+                name: knowhere
                 port:
                   number: 80

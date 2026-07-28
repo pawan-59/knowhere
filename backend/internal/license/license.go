@@ -8,7 +8,7 @@ import (
 	"errors"
 	"time"
 
-	"central-devtron/internal/db"
+	"knowhere/internal/db"
 )
 
 // License mirrors a row in the `licenses` table.

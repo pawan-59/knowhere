@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: central-devtron-data
+  name: knowhere-data
   labels:
-    app: central-devtron
+    app: knowhere
 spec:
   accessModes:
     - ReadWriteOnce            # SQLite has a single writer → single replica

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"central-devtron/internal/config"
+	"knowhere/internal/config"
 )
 
 // Client talks to the Zoho Desk REST API using an OAuth refresh token.

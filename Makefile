@@ -1,9 +1,9 @@
 .PHONY: help install backend frontend build docker-build docker-run k8s-apply
 
-IMAGE ?= central-devtron:latest
+IMAGE ?= knowhere:latest
 
 help:
-	@echo "Central-Devtron"
+	@echo "Knowhere"
 	@echo "  make install       - install frontend deps"
 	@echo "  make backend       - run Go API + SQLite (writes ./central.db)"
 	@echo "  make frontend      - run Vite dev server (proxies /api to backend)"

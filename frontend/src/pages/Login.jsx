@@ -24,7 +24,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="text-2xl font-bold text-white">Central<span className="text-emerald-400">·</span>Devtron</div>
+          <div className="text-2xl font-bold text-white">knowhere</div>
           <div className="mt-1 text-sm text-slate-400">Sign in to continue</div>
         </div>
         <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white p-6 shadow-xl">

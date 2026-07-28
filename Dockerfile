@@ -1,4 +1,4 @@
-# Central-Devtron — single-container image: Go API + embedded React frontend,
+# Knowhere — single-container image: Go API + embedded React frontend,
 # backed by embedded SQLite (data on a mounted volume at /data).
 
 # ── Stage 1: build the frontend ──────────────────────────────────────────────

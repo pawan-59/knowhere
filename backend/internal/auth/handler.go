@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 // dummyHash is a valid bcrypt hash compared against when a user is not found,

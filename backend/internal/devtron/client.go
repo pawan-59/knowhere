@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"central-devtron/internal/config"
+	"knowhere/internal/config"
 )
 
 type Client struct {

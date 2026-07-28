@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"central-devtron/internal/db"
+	"knowhere/internal/db"
 	"golang.org/x/crypto/bcrypt"
 )
 

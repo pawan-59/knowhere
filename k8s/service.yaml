@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: central-devtron
+  name: knowhere
   labels:
-    app: central-devtron
+    app: knowhere
 spec:
   type: ClusterIP
   selector:
-    app: central-devtron
+    app: knowhere
   ports:
     - name: http
       port: 80

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 const cookieName = "cd_session"

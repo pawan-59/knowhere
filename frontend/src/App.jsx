@@ -15,7 +15,7 @@ export default function App() {
     <div className="flex min-h-screen">
       <aside className="flex w-60 flex-col bg-slate-900 text-slate-300">
         <div className="px-5 py-5">
-          <div className="text-lg font-bold text-white">Central<span className="text-emerald-400">·</span>Devtron</div>
+          <div className="text-lg font-bold text-white">knowhere</div>
           <div className="text-xs text-slate-500">Unified operations dashboard</div>
         </div>
         <nav className="flex-1 space-y-1 px-3">

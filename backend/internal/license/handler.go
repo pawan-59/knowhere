@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 type Handler struct{ store *Store }

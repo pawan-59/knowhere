@@ -1,4 +1,4 @@
-// Command server is the Central-Devtron backend: a single API gateway that
+// Command server is the Knowhere backend: a single API gateway that
 // aggregates Zoho Desk ticket monitoring, Devtron release/deployment tracking,
 // customer onboarding status, and Devtron license monitoring.
 package main
@@ -13,15 +13,15 @@ import (
 	"syscall"
 	"time"
 
-	"central-devtron/internal/auth"
-	"central-devtron/internal/config"
-	"central-devtron/internal/db"
-	"central-devtron/internal/server"
+	"knowhere/internal/auth"
+	"knowhere/internal/config"
+	"knowhere/internal/db"
+	"knowhere/internal/server"
 )
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmsgprefix)
-	log.SetPrefix("[central-devtron] ")
+	log.SetPrefix("[knowhere] ")
 
 	cfg, err := config.Load()
 	if err != nil {

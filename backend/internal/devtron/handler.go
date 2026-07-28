@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"central-devtron/internal/httpx"
+	"knowhere/internal/httpx"
 )
 
 type Handler struct {

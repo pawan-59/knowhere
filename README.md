@@ -1,4 +1,4 @@
-# Central-Devtron
+# Knowhere
 
 A unified operations dashboard that brings four Devtron workstreams into one place:
 
@@ -90,12 +90,12 @@ frontend, with SQLite on a mounted volume).
 make docker-run          # docker compose up --build
 open http://localhost:8080
 ```
-Data persists in the `central_devtron_data` volume across restarts.
+Data persists in the `knowhere_data` volume across restarts.
 
 **Kubernetes:**
 ```bash
 # 1. Build & push the image to your registry, update the image ref in
-#    k8s/deployment.yaml (central-devtron:latest → your-registry/central-devtron:tag)
+#    k8s/deployment.yaml (knowhere:latest → your-registry/knowhere:tag)
 # 2. Put real values in k8s/secret.yaml (or use a sealed-secret / external-secrets)
 #    and k8s/configmap.yaml (ALLOW_ORIGIN, ZOHO_ORG_ID, DEVTRON_BASE_URL)
 # 3. Apply everything:

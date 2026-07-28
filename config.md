@@ -1,6 +1,6 @@
 # Configuration Reference
 
-All configuration for Central-Devtron is supplied through **environment
+All configuration for Knowhere is supplied through **environment
 variables**. The backend also reads a `backend/.env` file on startup (via
 `godotenv`); real OS environment variables take precedence over `.env` entries.
 

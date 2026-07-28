@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: central-devtron
+  name: knowhere
   labels:
-    app: central-devtron
+    app: knowhere
 spec:
   replicas: 1                    # SQLite is single-writer → keep at 1
   strategy:
     type: Recreate               # never run two pods on the RWO volume at once
   selector:
     matchLabels:
-      app: central-devtron
+      app: knowhere
   template:
     metadata:
       labels:
-        app: central-devtron
+        app: knowhere
     spec:
       securityContext:
         runAsNonRoot: true
@@ -23,17 +23,17 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       containers:
-        - name: central-devtron
-          image: central-devtron:latest   # replace with your registry/tag
+        - name: knowhere
+          image: knowhere:latest   # replace with your registry/tag
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
           envFrom:
             - configMapRef:
-                name: central-devtron-config
+                name: knowhere-config
             - secretRef:
-                name: central-devtron-secrets
+                name: knowhere-secrets
           volumeMounts:
             - name: data
               mountPath: /data     # SQLite database lives here
@@ -66,6 +66,6 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: central-devtron-data
+            claimName: knowhere-data
         - name: tmp
           emptyDir: {}
